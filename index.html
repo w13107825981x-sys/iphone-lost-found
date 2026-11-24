@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>失物找回 - 分享当前位置</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f3f5f8;
+      padding: 30px 18px;
+      color: #222;
+    }
+    .card {
+      max-width: 420px;
+      margin: 40px auto;
+      padding: 26px;
+      background: white;
+      border-radius: 18px;
+      text-align: center;
+      box-shadow: 0 5px 25px #00000012;
+    }
+    h2 { margin-bottom: 12px; }
+    p { color: #666; line-height: 1.7; }
+    button {
+      width: 100%;
+      padding: 15px;
+      border: 0;
+      border-radius: 12px;
+      background: #1677ff;
+      color: white;
+      font-size: 16px;
+      margin-top: 18px;
+    }
+    #result {
+      margin-top: 20px;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>📱 手机失物找回</h2>
+    <p>
+      如果你捡到了这部手机，麻烦帮忙分享一下当前位置，
+      方便失主找回。定位信息只会在你主动授权后获取。
+    </p>
+
+    <button onclick="getLocation()">分享我的当前位置</button>
+
+    <div id="result">等待你主动分享位置……</div>
+  </div>
+
+  <script>
+    function getLocation() {
+      const result = document.getElementById("result");
+
+      if (!navigator.geolocation) {
+        result.textContent = "当前浏览器不支持定位。";
+        return;
+      }
+
+      result.textContent = "正在请求定位，请允许浏览器获取位置……";
+
+      navigator.geolocation.getCurrentPosition(
+        function(position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          result.innerHTML =
+            "定位成功！<br>" +
+            "纬度：" + lat + "<br>" +
+            "经度：" + lng + "<br>" +
+            '<a target="_blank" rel="noopener" href="https://www.google.com/maps?q=' +
+            lat + ',' + lng + '">查看地图</a>';
+        },
+        function(error) {
+          result.textContent = "定位失败：" + error.message;
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 20000,
+          maximumAge: 0
+        }
+      );
+    }
+  </script>
+</body>
+</html>
