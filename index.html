@@ -39,6 +39,7 @@
       overflow-wrap: anywhere;
       font-size: 14px;
       line-height: 1.8;
+      text-align: left;
     }
   </style>
 </head>
@@ -47,8 +48,8 @@
     <h2>📱 手机失物找回</h2>
     <p>
       如果你捡到了这部手机，愿意帮助失主找回，
-      可以主动分享当前位置。点击按钮后，浏览器会请求你的定位授权。
-      你同意后，位置才会上传给失主查询。
+      可以主动分享当前位置。点击按钮后，浏览器会请求定位授权。
+      只有你同意后，位置才会上传给失主查询。
     </p>
 
     <button id="shareButton" onclick="getLocation()">
@@ -62,20 +63,20 @@
     const FUNCTION_URL =
       "https://xsccvztarcmwekuhnwvo.supabase.co/functions/v1/rapid-action";
 
-    // 填写之前保存的 Supabase Publishable key
-    const SUPABASE_KEY = "sb_publishable_5Eo-7HNm1xWLyblogIYgfw_WtzhXHJs";
+    const SUPABASE_KEY =
+      "sb_publishable_5Eo-7HNm1xWLyblogIYgfw_WtzhXHJs";
 
     async function getLocation() {
       const result = document.getElementById("result");
       const button = document.getElementById("shareButton");
 
-      if (!navigator.geolocation) {
-        result.textContent = "当前浏览器不支持定位。";
+      if (!window.isSecureContext) {
+        result.textContent = "当前网页不是安全连接，请使用 HTTPS 地址打开。";
         return;
       }
 
-      if (SUPABASE_KEY === "请替换成你的PublishableKey") {
-        result.textContent = "请先配置 Publishable key。";
+      if (!navigator.geolocation) {
+        result.textContent = "当前浏览器不支持定位功能。";
         return;
       }
 
@@ -88,7 +89,13 @@
           const lng = position.coords.longitude;
           const accuracy = position.coords.accuracy;
 
-          result.textContent = "已获取定位，正在上传……";
+          // 先显示坐标，区分定位问题和上传问题
+          result.textContent =
+            "定位获取成功！\n" +
+            "纬度：" + lat + "\n" +
+            "经度：" + lng + "\n" +
+            "精度：" + Math.round(accuracy) + " 米\n" +
+            "正在上传位置……";
 
           try {
             const response = await fetch(FUNCTION_URL, {
@@ -106,38 +113,61 @@
               })
             });
 
-            const data = await response.json();
+            const rawText = await response.text();
+            let data;
 
-            if (!response.ok || !data.success) {
-              throw new Error(data.error || "上传失败");
+            try {
+              data = JSON.parse(rawText);
+            } catch {
+              throw new Error(
+                "服务器返回的不是JSON：" + rawText.slice(0, 300)
+              );
             }
 
-            result.innerHTML =
-              "<strong>位置分享成功！感谢你的帮助。</strong><br>" +
-              "定位精度约：" + Math.round(accuracy) + " 米<br>" +
+            if (!response.ok || !data.success) {
+              throw new Error(
+                "HTTP状态：" + response.status +
+                "\n错误：" + (data.error || "未知错误") +
+                "\n详情：" + (data.details || "无") +
+                "\n错误代码：" + (data.code || "无")
+              );
+            }
+
+            result.textContent =
+              "位置分享成功！感谢你的帮助。\n" +
+              "纬度：" + lat + "\n" +
+              "经度：" + lng + "\n" +
+              "定位精度：" + Math.round(accuracy) + " 米\n" +
               "分享时间：" + new Date().toLocaleString("zh-CN");
 
           } catch (error) {
-            result.textContent = "位置上传失败：" + error.message;
+            result.textContent =
+              "已经获取到位置，但上传失败。\n\n" +
+              "纬度：" + lat + "\n" +
+              "经度：" + lng + "\n\n" +
+              "错误信息：\n" + error.message;
           } finally {
             button.disabled = false;
           }
         },
         function(error) {
           const messages = {
-            1: "你拒绝了定位授权，请允许浏览器获取位置后重试。",
-            2: "暂时无法获取位置，请检查设备定位服务。",
-            3: "定位超时，请稍后重试。"
+            1: "定位权限被拒绝，请检查浏览器的网站定位授权。",
+            2: "设备暂时无法确定位置。",
+            3: "定位超时，请重新尝试。"
           };
 
           result.textContent =
-            messages[error.code] || "定位失败：" + error.message;
+            "定位失败。\n" +
+            "错误代码：" + error.code + "\n" +
+            "错误原因：" +
+            (messages[error.code] || error.message);
 
           button.disabled = false;
         },
         {
           enableHighAccuracy: true,
-          timeout: 20000,
+          timeout: 30000,
           maximumAge: 0
         }
       );
