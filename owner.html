@@ -6,9 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>失物找回 - 位置查询</title>
 
-  <link rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -17,6 +14,7 @@
       background: #f5f6f8;
       color: #222;
     }
+
     .container {
       max-width: 650px;
       margin: 30px auto;
@@ -25,7 +23,9 @@
       border-radius: 12px;
       box-shadow: 0 2px 12px #00000010;
     }
+
     h2 { margin-top: 0; }
+
     input, button {
       width: 100%;
       box-sizing: border-box;
@@ -34,27 +34,43 @@
       border-radius: 8px;
       font-size: 16px;
     }
+
     input { border: 1px solid #ccc; }
+
     button {
       border: 0;
       background: #1677ff;
       color: white;
       cursor: pointer;
     }
+
     button:disabled { opacity: .6; }
+
     #map {
       height: 380px;
       margin-top: 20px;
       border-radius: 10px;
       display: none;
     }
+
     #result {
       margin-top: 16px;
       line-height: 1.8;
       overflow-wrap: anywhere;
     }
+
     .hint { color: #666; font-size: 13px; }
   </style>
+
+  <!-- 高德地图安全配置 -->
+  <script>
+    window._AMapSecurityConfig = {
+      securityJsCode: "2f88070da08e6c3aed525b2d65ea6fa7"
+    };
+  </script>
+
+  <!-- 高德地图 JS API -->
+  <script src="https://webapi.amap.com/maps?v=2.0&key=8fee7d41e3974ae9d72e2c8932a93a28"></script>
 </head>
 
 <body>
@@ -77,17 +93,38 @@
     <div id="map"></div>
   </div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
   <script>
     const FUNCTION_URL =
       "https://xsccvztarcmwekuhnwvo.supabase.co/functions/v1/rapid-action";
 
-    // 将这里替换成你自己的 Supabase Publishable key
+    // 保留你原来的 Supabase Publishable Key
     const SUPABASE_KEY = "sb_publishable_5Eo-7HNm1xWLyblogIYgfw_WtzhXHJs";
 
     let map;
     let marker;
+
+    // GPS 坐标转换成高德地图坐标
+    function convertGPS(lng, lat) {
+      return new Promise((resolve, reject) => {
+        if (!window.AMap) {
+          reject(new Error("高德地图加载失败，请检查 Key 和网络。"));
+          return;
+        }
+
+        AMap.convertFrom([lng, lat], "gps", function(status, result) {
+          if (
+            status === "complete" &&
+            result &&
+            result.locations &&
+            result.locations.length > 0
+          ) {
+            resolve(result.locations[0]);
+          } else {
+            reject(new Error("位置坐标转换失败，请稍后重试。"));
+          }
+        });
+      });
+    }
 
     async function queryLocation() {
       const password = document.getElementById("password").value.trim();
@@ -96,11 +133,6 @@
 
       if (!password) {
         result.textContent = "请先输入查询密码。";
-        return;
-      }
-
-      if (SUPABASE_KEY === "请在这里填写你的PublishableKey") {
-        result.textContent = "请先填写 Supabase Publishable key。";
         return;
       }
 
@@ -138,28 +170,33 @@
           throw new Error("返回的位置数据无效。");
         }
 
+        result.textContent = "查询成功，正在加载地图……";
+
+        // 转换手机 GPS 坐标
+        const position = await convertGPS(lng, lat);
+        const amapLng = position.lng;
+        const amapLat = position.lat;
+
         document.getElementById("map").style.display = "block";
 
         if (!map) {
-          map = L.map("map").setView([lat, lng], 17);
+          map = new AMap.Map("map", {
+            zoom: 17,
+            center: [amapLng, amapLat],
+            viewMode: "2D"
+          });
 
-          L.tileLayer(
-            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            {
-              attribution: "&copy; OpenStreetMap contributors"
-            }
-          ).addTo(map);
-        }
+          marker = new AMap.Marker({
+            position: [amapLng, amapLat],
+            title: "最近一次分享的位置"
+          });
 
-        map.setView([lat, lng], 17);
-
-        if (marker) {
-          marker.setLatLng([lat, lng]);
+          map.add(marker);
         } else {
-          marker = L.marker([lat, lng]).addTo(map);
+          map.setCenter([amapLng, amapLat]);
+          map.setZoom(17);
+          marker.setPosition([amapLng, amapLat]);
         }
-
-        marker.bindPopup("最近一次分享的位置").openPopup();
 
         const time = new Date(loc.created_at).toLocaleString("zh-CN");
 
@@ -169,13 +206,15 @@
           "纬度：" + lat + "<br>" +
           "经度：" + lng + "<br>" +
           "定位精度：" +
-          (loc.accuracy == null ? "未知" : Math.round(loc.accuracy) + " 米") +
-          "<br><a target='_blank' rel='noopener' href='https://www.openstreetmap.org/?mlat=" +
-          encodeURIComponent(lat) + "&mlon=" + encodeURIComponent(lng) +
-          "#map=17/" + encodeURIComponent(lat) + "/" +
-          encodeURIComponent(lng) + "'>在地图中打开</a>";
+          (loc.accuracy == null
+            ? "未知"
+            : Math.round(loc.accuracy) + " 米") +
+          "<br><a target='_blank' rel='noopener' href='https://uri.amap.com/marker?position=" +
+          encodeURIComponent(amapLng + "," + amapLat) +
+          "&name=" + encodeURIComponent("手机最近位置") +
+          "'>在高德地图中打开</a>";
 
-        setTimeout(() => map.invalidateSize(), 100);
+        setTimeout(() => map.resize(), 300);
 
       } catch (error) {
         result.textContent = error.message;
