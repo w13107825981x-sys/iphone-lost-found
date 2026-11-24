@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>失物找回 - 分享当前位置</title>
+  <title>手机失物找回 - 分享当前位置</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -33,10 +33,12 @@
       font-size: 16px;
       margin-top: 18px;
     }
+    button:disabled { opacity: .6; }
     #result {
       margin-top: 20px;
       overflow-wrap: anywhere;
       font-size: 14px;
+      line-height: 1.8;
     }
   </style>
 </head>
@@ -44,40 +46,94 @@
   <div class="card">
     <h2>📱 手机失物找回</h2>
     <p>
-      如果你捡到了这部手机，麻烦帮忙分享一下当前位置，
-      方便失主找回。定位信息只会在你主动授权后获取。
+      如果你捡到了这部手机，愿意帮助失主找回，
+      可以主动分享当前位置。点击按钮后，浏览器会请求你的定位授权。
+      你同意后，位置才会上传给失主查询。
     </p>
 
-    <button onclick="getLocation()">分享我的当前位置</button>
+    <button id="shareButton" onclick="getLocation()">
+      同意并分享我的当前位置
+    </button>
 
     <div id="result">等待你主动分享位置……</div>
   </div>
 
   <script>
-    function getLocation() {
+    const FUNCTION_URL =
+      "https://xsccvztarcmwekuhnwvo.supabase.co/functions/v1/rapid-action";
+
+    // 填写之前保存的 Supabase Publishable key
+    const SUPABASE_KEY = "sb_publishable_5Eo-7HNm1xWLyblogIYgfw_WtzhXHJs";
+
+    async function getLocation() {
       const result = document.getElementById("result");
+      const button = document.getElementById("shareButton");
 
       if (!navigator.geolocation) {
         result.textContent = "当前浏览器不支持定位。";
         return;
       }
 
+      if (SUPABASE_KEY === "请替换成你的PublishableKey") {
+        result.textContent = "请先配置 Publishable key。";
+        return;
+      }
+
+      button.disabled = true;
       result.textContent = "正在请求定位，请允许浏览器获取位置……";
 
       navigator.geolocation.getCurrentPosition(
-        function(position) {
+        async function(position) {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
+          const accuracy = position.coords.accuracy;
 
-          result.innerHTML =
-            "定位成功！<br>" +
-            "纬度：" + lat + "<br>" +
-            "经度：" + lng + "<br>" +
-            '<a target="_blank" rel="noopener" href="https://www.google.com/maps?q=' +
-            lat + ',' + lng + '">查看地图</a>';
+          result.textContent = "已获取定位，正在上传……";
+
+          try {
+            const response = await fetch(FUNCTION_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_KEY
+              },
+              body: JSON.stringify({
+                action: "report",
+                latitude: lat,
+                longitude: lng,
+                accuracy: accuracy,
+                consent: true
+              })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+              throw new Error(data.error || "上传失败");
+            }
+
+            result.innerHTML =
+              "<strong>位置分享成功！感谢你的帮助。</strong><br>" +
+              "定位精度约：" + Math.round(accuracy) + " 米<br>" +
+              "分享时间：" + new Date().toLocaleString("zh-CN");
+
+          } catch (error) {
+            result.textContent = "位置上传失败：" + error.message;
+          } finally {
+            button.disabled = false;
+          }
         },
         function(error) {
-          result.textContent = "定位失败：" + error.message;
+          const messages = {
+            1: "你拒绝了定位授权，请允许浏览器获取位置后重试。",
+            2: "暂时无法获取位置，请检查设备定位服务。",
+            3: "定位超时，请稍后重试。"
+          };
+
+          result.textContent =
+            messages[error.code] || "定位失败：" + error.message;
+
+          button.disabled = false;
         },
         {
           enableHighAccuracy: true,
