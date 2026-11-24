@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>失物找回 - 位置查询</title>
+
+  <link rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 24px 16px;
+      background: #f5f6f8;
+      color: #222;
+    }
+    .container {
+      max-width: 650px;
+      margin: 30px auto;
+      background: white;
+      padding: 22px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px #00000010;
+    }
+    h2 { margin-top: 0; }
+    input, button {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 13px;
+      margin-top: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    input { border: 1px solid #ccc; }
+    button {
+      border: 0;
+      background: #1677ff;
+      color: white;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .6; }
+    #map {
+      height: 380px;
+      margin-top: 20px;
+      border-radius: 10px;
+      display: none;
+    }
+    #result {
+      margin-top: 16px;
+      line-height: 1.8;
+      overflow-wrap: anywhere;
+    }
+    .hint { color: #666; font-size: 13px; }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>手机失物找回</h2>
+    <p>失主专用位置查询</p>
+
+    <input
+      id="password"
+      type="password"
+      placeholder="请输入你的查询密码"
+      autocomplete="current-password"
+    >
+
+    <button id="queryButton" onclick="queryLocation()">
+      查询最新位置
+    </button>
+
+    <div id="result" aria-live="polite"></div>
+    <div id="map"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    const FUNCTION_URL =
+      "https://xsccvztarcmwekuhnwvo.supabase.co/functions/v1/rapid-action";
+
+    // 将这里替换成你自己的 Supabase Publishable key
+    const SUPABASE_KEY = "sb_publishable_5Eo-7HNm1xWLyblogIYgfw_WtzhXHJs";
+
+    let map;
+    let marker;
+
+    async function queryLocation() {
+      const password = document.getElementById("password").value.trim();
+      const result = document.getElementById("result");
+      const button = document.getElementById("queryButton");
+
+      if (!password) {
+        result.textContent = "请先输入查询密码。";
+        return;
+      }
+
+      if (SUPABASE_KEY === "请在这里填写你的PublishableKey") {
+        result.textContent = "请先填写 Supabase Publishable key。";
+        return;
+      }
+
+      button.disabled = true;
+      result.textContent = "正在查询，请稍候……";
+
+      try {
+        const response = await fetch(FUNCTION_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_KEY
+          },
+          body: JSON.stringify({
+            action: "latest",
+            password: password
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            response.status === 401
+              ? "密码错误，请重新输入。"
+              : data.error || "查询失败，请稍后重试。"
+          );
+        }
+
+        const loc = data.location;
+        const lat = Number(loc.latitude);
+        const lng = Number(loc.longitude);
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          throw new Error("返回的位置数据无效。");
+        }
+
+        document.getElementById("map").style.display = "block";
+
+        if (!map) {
+          map = L.map("map").setView([lat, lng], 17);
+
+          L.tileLayer(
+            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            {
+              attribution: "&copy; OpenStreetMap contributors"
+            }
+          ).addTo(map);
+        }
+
+        map.setView([lat, lng], 17);
+
+        if (marker) {
+          marker.setLatLng([lat, lng]);
+        } else {
+          marker = L.marker([lat, lng]).addTo(map);
+        }
+
+        marker.bindPopup("最近一次分享的位置").openPopup();
+
+        const time = new Date(loc.created_at).toLocaleString("zh-CN");
+
+        result.innerHTML =
+          "<strong>查询成功</strong><br>" +
+          "更新时间：" + time + "<br>" +
+          "纬度：" + lat + "<br>" +
+          "经度：" + lng + "<br>" +
+          "定位精度：" +
+          (loc.accuracy == null ? "未知" : Math.round(loc.accuracy) + " 米") +
+          "<br><a target='_blank' rel='noopener' href='https://www.openstreetmap.org/?mlat=" +
+          encodeURIComponent(lat) + "&mlon=" + encodeURIComponent(lng) +
+          "#map=17/" + encodeURIComponent(lat) + "/" +
+          encodeURIComponent(lng) + "'>在地图中打开</a>";
+
+        setTimeout(() => map.invalidateSize(), 100);
+
+      } catch (error) {
+        result.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
