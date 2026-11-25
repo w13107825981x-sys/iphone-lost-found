@@ -2,226 +2,466 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>失物找回 - 位置查询</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>手机失物找回 - 管理中心</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 24px 16px;
-      background: #f5f6f8;
-      color: #222;
-    }
+<style>
+* { box-sizing: border-box; }
 
-    .container {
-      max-width: 650px;
-      margin: 30px auto;
-      background: white;
-      padding: 22px;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px #00000010;
-    }
+body {
+  margin: 0;
+  padding: 20px 14px;
+  font-family: Arial, sans-serif;
+  background: #f3f5f9;
+  color: #202938;
+}
 
-    h2 { margin-top: 0; }
+.container { max-width: 850px; margin: 15px auto; }
 
-    input, button {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 13px;
-      margin-top: 12px;
-      border-radius: 8px;
-      font-size: 16px;
-    }
+.panel {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  margin-bottom: 15px;
+  box-shadow: 0 3px 12px #00000008;
+}
 
-    input { border: 1px solid #ccc; }
+h2 { margin-top: 0; }
+h3 { font-size: 17px; margin-top: 0; }
 
-    button {
-      border: 0;
-      background: #1677ff;
-      color: white;
-      cursor: pointer;
-    }
+input, button {
+  width: 100%;
+  padding: 13px;
+  margin-top: 10px;
+  border-radius: 8px;
+  font-size: 15px;
+}
 
-    button:disabled { opacity: .6; }
+input { border: 1px solid #d9dee8; }
 
-    #map {
-      height: 380px;
-      margin-top: 20px;
-      border-radius: 10px;
-      display: none;
-    }
+button {
+  border: none;
+  background: #1677ff;
+  color: white;
+  cursor: pointer;
+}
 
-    #result {
-      margin-top: 16px;
-      line-height: 1.8;
-      overflow-wrap: anywhere;
-    }
+button:disabled { opacity: .6; }
 
-    .hint { color: #666; font-size: 13px; }
-  </style>
+.secondary {
+  background: #eef4ff;
+  color: #1677ff;
+  border: 1px solid #d7e5ff;
+}
 
-  <!-- 高德地图安全配置 -->
-  <script>
-    window._AMapSecurityConfig = {
-      securityJsCode: "2f88070da08e6c3aed525b2d65ea6fa7"
-    };
-  </script>
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
 
-  <!-- 高德地图 JS API -->
-  <script src="https://webapi.amap.com/maps?v=2.0&key=8fee7d41e3974ae9d72e2c8932a93a28"></script>
+.stat {
+  background: #f5f7fb;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.stat small {
+  display: block;
+  color: #7b8494;
+  margin-bottom: 8px;
+}
+
+.stat strong {
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+
+.info {
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+
+#map {
+  height: 380px;
+  border-radius: 10px;
+  margin-top: 12px;
+  display: none;
+}
+
+.log {
+  padding: 14px 0;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.log:last-child { border-bottom: none; }
+
+.log-time { font-weight: bold; margin-bottom: 6px; }
+
+.log button { margin-top: 8px; }
+
+.muted {
+  color: #7b8494;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+#status {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 450px) {
+  body { padding: 12px 9px; }
+  .panel { padding: 15px; }
+  #map { height: 310px; }
+}
+</style>
+
+<script>
+window._AMapSecurityConfig = {
+  securityJsCode: "2f88070da08e6c3aed525b2d65ea6fa7"
+};
+</script>
+
+<script src="https://webapi.amap.com/maps?v=2.0&key=8fee7d41e3974ae9d72e2c8932a93a28"></script>
 </head>
 
 <body>
-  <div class="container">
+<div class="container">
+
+  <div class="panel">
     <h2>手机失物找回</h2>
-    <p>失主专用位置查询</p>
+    <p class="muted">失主专用管理后台 · 定位记录查询</p>
 
-    <input
-      id="password"
-      type="password"
-      placeholder="请输入你的查询密码"
-      autocomplete="current-password"
-    >
+    <input id="password" type="password"
+      placeholder="请输入查询密码"
+      autocomplete="current-password">
 
-    <button id="queryButton" onclick="queryLocation()">
-      查询最新位置
+    <button id="queryButton" onclick="queryAll()">
+      查询定位记录
     </button>
 
-    <div id="result" aria-live="polite"></div>
-    <div id="map"></div>
+    <div id="status" aria-live="polite"></div>
   </div>
 
-  <script>
-    const FUNCTION_URL =
-      "https://xsccvztarcmwekuhnwvo.supabase.co/functions/v1/rapid-action";
+  <div id="dashboard" style="display:none">
 
-    // 保留你原来的 Supabase Publishable Key
-    const SUPABASE_KEY = "sb_publishable_5Eo-7HNm1xWLyblogIYgfw_WtzhXHJs";
+    <div class="panel">
+      <h3>定位统计</h3>
+      <div class="stats">
+        <div class="stat">
+          <small>本次查询记录数（最多100条）</small>
+          <strong id="total">0</strong>
+        </div>
+        <div class="stat">
+          <small>最新定位时间</small>
+          <strong id="latestTime">暂无</strong>
+        </div>
+      </div>
+    </div>
 
-    let map;
-    let marker;
+    <div class="panel">
+      <h3>最新设备信息</h3>
+      <div id="deviceInfo" class="info">暂无数据</div>
+    </div>
 
-    // GPS 坐标转换成高德地图坐标
-    function convertGPS(lng, lat) {
-      return new Promise((resolve, reject) => {
-        if (!window.AMap) {
-          reject(new Error("高德地图加载失败，请检查 Key 和网络。"));
-          return;
-        }
+    <div class="panel">
+      <h3>最新定位详情</h3>
+      <div id="latestInfo" class="info">暂无数据</div>
+      <button class="secondary" onclick="openLatestMap()">
+        查看最新位置地图
+      </button>
+    </div>
 
-        AMap.convertFrom([lng, lat], "gps", function(status, result) {
-          if (
-            status === "complete" &&
-            result &&
-            result.locations &&
-            result.locations.length > 0
-          ) {
-            resolve(result.locations[0]);
-          } else {
-            reject(new Error("位置坐标转换失败，请稍后重试。"));
-          }
-        });
-      });
+    <div class="panel">
+      <h3>历史定位地图</h3>
+      <p class="muted">点击历史日志可查看对应位置。</p>
+      <div id="map"></div>
+    </div>
+
+    <div class="panel">
+      <h3>历史定位日志</h3>
+      <p class="muted">按时间倒序排列，最多显示最近100条。</p>
+      <div id="historyList"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const FUNCTION_URL =
+  "https://xsccvztarcmwekuhnwvo.supabase.co/functions/v1/rapid-action";
+
+const SUPABASE_KEY =
+  "sb_publishable_5Eo-7HNm1xWLyblogIYgfw_WtzhXHJs";
+
+let password = "";
+let records = [];
+let map = null;
+let markers = [];
+let convertedPositions = [];
+
+async function apiRequest(action) {
+  const response = await fetch(FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_KEY
+    },
+    body: JSON.stringify({
+      action,
+      password
+    })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "查询失败");
+  }
+
+  return data;
+}
+
+function formatTime(value) {
+  if (!value) return "未知";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "未知";
+
+  return date.toLocaleString("zh-CN", {
+    hour12: false
+  });
+}
+
+function addLine(container, label, value) {
+  const line = document.createElement("div");
+  line.textContent = label + "：" + String(value ?? "未知");
+  container.appendChild(line);
+}
+
+async function queryAll() {
+  password = document.getElementById("password").value.trim();
+
+  const button = document.getElementById("queryButton");
+  const status = document.getElementById("status");
+
+  if (!password) {
+    status.textContent = "请先输入查询密码。";
+    return;
+  }
+
+  button.disabled = true;
+  status.textContent = "正在查询历史定位记录……";
+
+  try {
+    const data = await apiRequest("history");
+    records = Array.isArray(data.records) ? data.records : [];
+
+    if (records.length === 0) {
+      throw new Error("目前还没有定位记录。");
     }
 
-    async function queryLocation() {
-      const password = document.getElementById("password").value.trim();
-      const result = document.getElementById("result");
-      const button = document.getElementById("queryButton");
+    document.getElementById("dashboard").style.display = "block";
 
-      if (!password) {
-        result.textContent = "请先输入查询密码。";
-        return;
-      }
+    renderDashboard();
 
-      button.disabled = true;
-      result.textContent = "正在查询，请稍候……";
+    await renderMap();
 
-      try {
-        const response = await fetch(FUNCTION_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_KEY
-          },
-          body: JSON.stringify({
-            action: "latest",
-            password: password
-          })
-        });
+    status.textContent =
+      "查询成功，共找到 " + records.length + " 条定位记录。";
 
-        const data = await response.json();
+  } catch (error) {
+    status.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+}
 
-        if (!response.ok) {
-          throw new Error(
-            response.status === 401
-              ? "密码错误，请重新输入。"
-              : data.error || "查询失败，请稍后重试。"
-          );
-        }
+function renderDashboard() {
+  const latest = records[0];
 
-        const loc = data.location;
-        const lat = Number(loc.latitude);
-        const lng = Number(loc.longitude);
+  document.getElementById("total").textContent =
+    records.length + " 条";
 
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-          throw new Error("返回的位置数据无效。");
-        }
+  document.getElementById("latestTime").textContent =
+    formatTime(latest.created_at);
 
-        result.textContent = "查询成功，正在加载地图……";
+  const device = document.getElementById("deviceInfo");
+  device.replaceChildren();
 
-        // 转换手机 GPS 坐标
-        const position = await convertGPS(lng, lat);
-        const amapLng = position.lng;
-        const amapLat = position.lat;
+  addLine(device, "设备类型", latest.device_type || "未知");
+  addLine(device, "操作系统", latest.os_name || "未知");
+  addLine(device, "浏览器", latest.browser_name || "未知");
+  addLine(device, "定位时间", formatTime(latest.created_at));
+  addLine(
+    device,
+    "定位精度",
+    latest.accuracy == null
+      ? "未知"
+      : Math.round(Number(latest.accuracy)) + " 米"
+  );
 
-        document.getElementById("map").style.display = "block";
+  const info = document.getElementById("latestInfo");
+  info.replaceChildren();
 
-        if (!map) {
-          map = new AMap.Map("map", {
-            zoom: 17,
-            center: [amapLng, amapLat],
-            viewMode: "2D"
-          });
+  addLine(info, "定位时间", formatTime(latest.created_at));
+  addLine(info, "纬度", latest.latitude);
+  addLine(info, "经度", latest.longitude);
+  addLine(
+    info,
+    "定位精度",
+    latest.accuracy == null
+      ? "未知"
+      : Math.round(Number(latest.accuracy)) + " 米"
+  );
 
-          marker = new AMap.Marker({
-            position: [amapLng, amapLat],
-            title: "最近一次分享的位置"
-          });
+  renderHistory();
+}
 
-          map.add(marker);
-        } else {
-          map.setCenter([amapLng, amapLat]);
-          map.setZoom(17);
-          marker.setPosition([amapLng, amapLat]);
-        }
+function renderHistory() {
+  const list = document.getElementById("historyList");
+  list.replaceChildren();
 
-        const time = new Date(loc.created_at).toLocaleString("zh-CN");
+  records.forEach((record, index) => {
+    const item = document.createElement("div");
+    item.className = "log";
 
-        result.innerHTML =
-          "<strong>查询成功</strong><br>" +
-          "更新时间：" + time + "<br>" +
-          "纬度：" + lat + "<br>" +
-          "经度：" + lng + "<br>" +
-          "定位精度：" +
-          (loc.accuracy == null
-            ? "未知"
-            : Math.round(loc.accuracy) + " 米") +
-          "<br><a target='_blank' rel='noopener' href='https://uri.amap.com/marker?position=" +
-          encodeURIComponent(amapLng + "," + amapLat) +
-          "&name=" + encodeURIComponent("手机最近位置") +
-          "'>在高德地图中打开</a>";
+    const time = document.createElement("div");
+    time.className = "log-time";
+    time.textContent =
+      (index === 0 ? "最新记录 · " : "历史记录 · ") +
+      formatTime(record.created_at);
 
-        setTimeout(() => map.resize(), 300);
+    const details = document.createElement("div");
+    details.className = "muted";
+    details.textContent =
+      "设备：" + (record.device_type || "未知") +
+      " ｜ 系统：" + (record.os_name || "未知") +
+      " ｜ 浏览器：" + (record.browser_name || "未知");
 
-      } catch (error) {
-        result.textContent = error.message;
-      } finally {
-        button.disabled = false;
-      }
+    const accuracy = document.createElement("div");
+    accuracy.className = "muted";
+    accuracy.textContent =
+      "定位精度：" +
+      (record.accuracy == null
+        ? "未知"
+        : Math.round(Number(record.accuracy)) + " 米");
+
+    const button = document.createElement("button");
+    button.className = "secondary";
+    button.textContent = "查看这次定位";
+    button.addEventListener("click", () => showRecordOnMap(index));
+
+    item.append(time, details, accuracy, button);
+    list.appendChild(item);
+  });
+}
+
+function convertGPS(lng, lat) {
+  return new Promise((resolve, reject) => {
+    if (!window.AMap) {
+      reject(new Error("高德地图加载失败，请检查 Key 和安全密钥。"));
+      return;
     }
-  </script>
+
+    AMap.convertFrom([lng, lat], "gps", function(status, result) {
+      if (
+        status === "complete" &&
+        result &&
+        result.locations &&
+        result.locations.length > 0
+      ) {
+        resolve(result.locations[0]);
+      } else {
+        reject(new Error("坐标转换失败"));
+      }
+    });
+  });
+}
+
+async function renderMap() {
+  document.getElementById("map").style.display = "block";
+
+  if (!window.AMap) {
+    throw new Error("高德地图加载失败，请检查地图 Key 和安全配置。");
+  }
+
+  if (!map) {
+    map = new AMap.Map("map", {
+      zoom: 15,
+      viewMode: "2D"
+    });
+  }
+
+  markers.forEach(marker => map.remove(marker));
+  markers = [];
+  convertedPositions = [];
+
+  for (const record of records) {
+    try {
+      const position = await convertGPS(
+        Number(record.longitude),
+        Number(record.latitude)
+      );
+
+      convertedPositions.push(position);
+    } catch (error) {
+      convertedPositions.push(null);
+    }
+  }
+
+  records.forEach((record, index) => {
+    const position = convertedPositions[index];
+    if (!position) return;
+
+    const marker = new AMap.Marker({
+      position: [position.lng, position.lat],
+      title: formatTime(record.created_at)
+    });
+
+    marker.on("click", () => showRecordOnMap(index));
+
+    map.add(marker);
+    markers.push(marker);
+  });
+
+  if (convertedPositions[0]) {
+    map.setCenter([
+      convertedPositions[0].lng,
+      convertedPositions[0].lat
+    ]);
+    map.setZoom(16);
+  }
+
+  setTimeout(() => map.resize(), 300);
+}
+
+function showRecordOnMap(index) {
+  const position = convertedPositions[index];
+
+  if (!position) {
+    document.getElementById("status").textContent =
+      "该记录无法转换地图坐标，原始 GPS 数据仍然保留。";
+    return;
+  }
+
+  map.setCenter([position.lng, position.lat]);
+  map.setZoom(17);
+
+  const record = records[index];
+
+  document.getElementById("status").textContent =
+    "正在查看：" + formatTime(record.created_at);
+}
+
+function openLatestMap() {
+  showRecordOnMap(0);
+}
+</script>
 </body>
 </html>
