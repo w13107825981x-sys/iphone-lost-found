@@ -4,78 +4,457 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>手机失物找回 - 位置分享</title>
+<meta name="theme-color" content="#10172d">
+<title>Cloud Hub - 云端资源中心</title>
+
 <style>
 *{box-sizing:border-box}
+
+:root{
+  --bg:#0b1123;
+  --panel:#151f39;
+  --blue:#6b8cff;
+  --purple:#a78bfa;
+  --text:#f3f5ff;
+  --muted:#9ba8c5;
+}
+
 body{
-  margin:0;padding:22px 14px;
-  background:#f3f6fb;color:#202938;
-  font-family:Arial,"Microsoft YaHei",sans-serif
+  margin:0;
+  color:var(--text);
+  font-family:Arial,"Microsoft YaHei",sans-serif;
+  background:
+    radial-gradient(ellipse at 15% 5%,#243a75 0,transparent 40%),
+    radial-gradient(ellipse at 90% 30%,#30215d 0,transparent 38%),
+    linear-gradient(145deg,#0b1123,#101a34 55%,#111329);
+  min-height:100vh;
 }
-.container{max-width:520px;margin:35px auto}
-.panel{
-  background:#fff;border-radius:16px;
-  padding:22px;margin-bottom:16px;
-  box-shadow:0 4px 18px #0000000a
+
+button{font-family:inherit}
+
+.container{
+  max-width:1050px;
+  margin:auto;
+  padding:25px 20px 55px;
 }
-h2{margin:0 0 12px;font-size:23px}
-p{line-height:1.8;color:#687386;font-size:14px}
-.notice{
-  background:#fff8e8;color:#76551b;
-  padding:13px;border-radius:10px;
-  font-size:13px;line-height:1.8
+
+/* 顶部导航 */
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 0 28px;
+  border-bottom:1px solid #ffffff13;
 }
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo{
+  width:43px;
+  height:43px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  font-size:23px;
+  background:linear-gradient(135deg,#648bff,#a17aff);
+  box-shadow:0 5px 25px #718aff55;
+}
+
+.brand-name{
+  font-size:18px;
+  font-weight:700;
+  letter-spacing:.5px;
+}
+
+.brand-sub{
+  color:var(--muted);
+  font-size:11px;
+  margin-top:4px;
+}
+
+.nav-right{
+  color:#b8c4e0;
+  font-size:12px;
+}
+
+/* 主视觉 */
+.hero{
+  position:relative;
+  overflow:hidden;
+  margin-top:30px;
+  padding:48px 35px;
+  border:1px solid #ffffff18;
+  border-radius:25px;
+  background:
+    linear-gradient(110deg,#1d3260e8,#25214fe8);
+  box-shadow:0 20px 60px #00000025;
+}
+
+.hero:after{
+  content:"☁";
+  position:absolute;
+  right:7%;
+  top:12px;
+  font-size:170px;
+  color:#ffffff0b;
+}
+
+.eyebrow{
+  display:inline-block;
+  padding:7px 12px;
+  border:1px solid #a7baff42;
+  border-radius:30px;
+  color:#b9caff;
+  font-size:12px;
+  background:#ffffff09;
+}
+
+.hero h1{
+  font-size:36px;
+  margin:22px 0 12px;
+  letter-spacing:1px;
+}
+
+.hero p{
+  color:#c0cbe3;
+  font-size:14px;
+  line-height:1.9;
+  max-width:510px;
+  margin:0;
+}
+
+.hero-bottom{
+  display:flex;
+  gap:25px;
+  margin-top:30px;
+  flex-wrap:wrap;
+}
+
+.hero-item{
+  color:#b7c4e2;
+  font-size:12px;
+}
+
+/* 区块标题 */
+.section-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:35px 0 17px;
+}
+
+.section-title h2{
+  font-size:19px;
+  margin:0;
+}
+
+.section-title span{
+  font-size:12px;
+  color:#8998b8;
+}
+
+/* 资源卡片 */
+.resources{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:15px;
+}
+
+.resource{
+  padding:20px;
+  min-height:145px;
+  border:1px solid #ffffff13;
+  border-radius:17px;
+  background:linear-gradient(145deg,#ffffff0c,#ffffff05);
+  transition:.2s;
+}
+
+.resource:hover{
+  transform:translateY(-3px);
+  border-color:#819aff70;
+  background:#ffffff12;
+}
+
+.resource-icon{
+  width:43px;
+  height:43px;
+  display:grid;
+  place-items:center;
+  border-radius:13px;
+  font-size:21px;
+  margin-bottom:15px;
+}
+
+.icon-blue{background:#477cff25}
+.icon-purple{background:#a47aff25}
+.icon-cyan{background:#46c8e825}
+
+.resource h3{
+  font-size:15px;
+  margin:0 0 7px;
+}
+
+.resource p{
+  color:var(--muted);
+  font-size:12px;
+  margin:0;
+  line-height:1.7;
+}
+
+/* 服务区域 */
+.service{
+  margin-top:35px;
+  padding:25px;
+  border-radius:20px;
+  border:1px solid #8ca8ff35;
+  background:linear-gradient(130deg,#1b2b50,#211d46);
+  box-shadow:0 12px 40px #00000020;
+}
+
+.service-heading{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:15px;
+}
+
+.service-icon{
+  width:45px;
+  height:45px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  font-size:22px;
+  background:linear-gradient(135deg,#638bff,#9c75ff);
+}
+
+.service h2{
+  font-size:18px;
+  margin:0 0 5px;
+}
+
+.service-heading small{
+  color:#aab9dc;
+}
+
+.service-description{
+  color:#bdc8e0;
+  font-size:13px;
+  line-height:1.9;
+}
+
+.consent{
+  margin-top:17px;
+  padding:15px;
+  background:#ffffff09;
+  border:1px solid #ffffff16;
+  border-radius:12px;
+  color:#c5d0e7;
+  font-size:12px;
+  line-height:1.9;
+}
+
+.consent strong{color:#fff}
+
 button{
-  width:100%;padding:15px;margin-top:12px;
-  border:0;border-radius:10px;
-  font-size:16px;font-weight:bold;cursor:pointer
+  width:100%;
+  padding:15px;
+  margin-top:15px;
+  border:0;
+  border-radius:11px;
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.2s;
 }
-#startButton{background:#1677ff;color:white}
-#stopButton{background:#fff0f0;color:#c0392b}
-button:disabled{opacity:.5;cursor:not-allowed}
-.status{
-  background:#f5f7fa;padding:14px;
-  border-radius:10px;line-height:1.8;
-  font-size:14px;overflow-wrap:anywhere
+
+#startButton{
+  color:white;
+  background:linear-gradient(100deg,#527eff,#9174f7);
+  box-shadow:0 6px 22px #718aff35;
 }
-.small{font-size:12px;color:#8791a1;line-height:1.7}
+
+#startButton:hover{filter:brightness(1.12)}
+
+#stopButton{
+  color:#ffc4c4;
+  background:#ff55551c;
+  border:1px solid #ff85853d;
+}
+
+button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+/* 状态面板 */
+.status-panel{
+  margin-top:16px;
+  padding:20px;
+  border-radius:17px;
+  border:1px solid #ffffff15;
+  background:#151f39;
+}
+
+.status-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:13px;
+}
+
+.status-top h3{
+  font-size:15px;
+  margin:0;
+}
+
+.status-tag{
+  color:#9eb4ff;
+  font-size:11px;
+  padding:5px 10px;
+  border-radius:20px;
+  background:#6e8dff1b;
+}
+
+#status{
+  white-space:pre-line;
+  overflow-wrap:anywhere;
+  padding:14px;
+  border-radius:11px;
+  background:#0c142a;
+  color:#c5d2ef;
+  font-size:13px;
+  line-height:1.9;
+  min-height:55px;
+}
+
+.footer{
+  text-align:center;
+  padding:30px 0 5px;
+  color:#71809f;
+  font-size:11px;
+  line-height:2;
+}
+
+@media(max-width:650px){
+  .container{padding:17px 13px 35px}
+  .hero{padding:32px 23px}
+  .hero h1{font-size:28px}
+  .hero:after{font-size:115px;right:2%}
+  .resources{grid-template-columns:1fr}
+  .resource{min-height:auto}
+  .nav-right{font-size:10px}
+  .service{padding:20px}
+}
 </style>
 </head>
+
 <body>
 <div class="container">
 
-  <div class="panel">
-    <h2>手机失物找回</h2>
-    <p>如果你捡到了他人的手机，可以通过主动分享当前位置，帮助失主找回手机。</p>
+  <header class="nav">
+    <div class="brand">
+      <div class="logo">☁</div>
+      <div>
+        <div class="brand-name">Cloud Hub</div>
+        <div class="brand-sub">CLOUD RESOURCE CENTER</div>
+      </div>
+    </div>
+    <div class="nav-right">云端服务 · 在线平台</div>
+  </header>
 
-    <div class="notice">
-      <strong>位置分享说明</strong><br>
-      1. 只有你主动点击开始并允许浏览器定位后，网页才会获取位置。<br>
-      2. 开始后，网页每30秒尝试获取并上传一次位置。<br>
-      3. 你可以随时点击停止分享。<br>
-      4. 上传的位置会提供给失主用于找回手机。<br>
-      5. 网页切到后台、锁屏或关闭后，浏览器可能暂停定位，不能保证持续运行。
+  <section class="hero">
+    <div class="eyebrow">✦ CLOUD SERVICE PLATFORM</div>
+    <h1>探索云端服务空间</h1>
+    <p>
+      欢迎来到 Cloud Hub 云端服务中心。
+      这里提供便捷的在线服务入口与云端功能，
+      为你带来简洁、高效的使用体验。
+    </p>
+    <div class="hero-bottom">
+      <div class="hero-item">☁ 云端服务</div>
+      <div class="hero-item">◈ 在线功能</div>
+      <div class="hero-item">⌁ 数据同步</div>
+    </div>
+  </section>
+
+  <div class="section-title">
+    <h2>云端服务</h2>
+    <span>ONLINE SERVICES</span>
+  </div>
+
+  <section class="resources">
+    <div class="resource">
+      <div class="resource-icon icon-blue">☁</div>
+      <h3>云端空间</h3>
+      <p>在线云端服务入口与信息管理。</p>
+    </div>
+
+    <div class="resource">
+      <div class="resource-icon icon-purple">▤</div>
+      <h3>资源中心</h3>
+      <p>统一查看平台提供的服务信息。</p>
+    </div>
+
+    <div class="resource">
+      <div class="resource-icon icon-cyan">⌁</div>
+      <h3>数据服务</h3>
+      <p>便捷的数据交互与在线服务。</p>
+    </div>
+  </section>
+
+  <section class="service">
+    <div class="service-heading">
+      <div class="service-icon">⌖</div>
+      <div>
+        <h2>位置共享服务</h2>
+        <small>VOLUNTARY LOCATION SHARING</small>
+      </div>
+    </div>
+
+    <div class="service-description">
+      通过浏览器定位功能，你可以主动向失主分享当前位置，
+      帮助失主找回遗失的手机。
+    </div>
+
+    <div class="consent">
+      <strong>位置共享与隐私说明</strong><br>
+      • 只有你主动同意并允许浏览器定位后，才会获取位置。<br>
+      • 开始后，每30秒尝试获取并上传一次位置。<br>
+      • 上传的位置会提供给失主用于找回手机。<br>
+      • 你可以随时停止分享。<br>
+      • 页面进入后台、锁屏或关闭时，浏览器可能暂停定位。<br>
+      • 已上传的历史记录不会因停止分享而自动删除。
     </div>
 
     <button id="startButton" onclick="startSharing()">
-      同意并开始位置分享
+      同意说明并开始分享当前位置
     </button>
 
     <button id="stopButton" onclick="stopSharing()" style="display:none">
       停止位置分享
     </button>
-  </div>
+  </section>
 
-  <div class="panel">
-    <h3>位置分享状态</h3>
-    <div id="status" class="status" aria-live="polite">
-      尚未开始分享位置。
+  <section class="status-panel">
+    <div class="status-top">
+      <h3>服务运行状态</h3>
+      <span class="status-tag" id="statusTag">尚未启动</span>
     </div>
-    <p class="small">
-      定位间隔：30秒。只有定位成功并上传成功的数据才会保存。
-      停止分享后，之前已经上传的记录不会自动删除。
-    </p>
-  </div>
+
+    <div id="status" aria-live="polite">
+      尚未开始位置分享。
+    </div>
+  </section>
+
+  <footer class="footer">
+    CLOUD HUB · CLOUD RESOURCE CENTER<br>
+    在线服务平台
+  </footer>
 
 </div>
 
@@ -95,6 +474,7 @@ let uploading = false;
 const statusBox = document.getElementById("status");
 const startButton = document.getElementById("startButton");
 const stopButton = document.getElementById("stopButton");
+const statusTag = document.getElementById("statusTag");
 
 function setStatus(message) {
   statusBox.textContent = message;
@@ -103,6 +483,7 @@ function setStatus(message) {
 function updateButtons() {
   startButton.style.display = sharing ? "none" : "block";
   stopButton.style.display = sharing ? "block" : "none";
+  statusTag.textContent = sharing ? "分享运行中" : "已停止";
 }
 
 function stopSharing() {
@@ -146,10 +527,8 @@ function startSharing() {
 
   setStatus("正在请求浏览器定位权限……");
 
-  // 立即执行第一次定位
   locateAndUpload();
 
-  // 每30秒尝试一次
   timer = setInterval(() => {
     if (sharing) locateAndUpload();
   }, INTERVAL_MS);
@@ -214,7 +593,7 @@ function locateAndUpload() {
 
       } catch (error) {
         if (sharing) {
-          setStatus("位置获取成功，但上传失败： " + error.message);
+          setStatus("位置获取成功，但上传失败：" + error.message);
         }
       } finally {
         uploading = false;
@@ -231,7 +610,7 @@ function locateAndUpload() {
       if (error.code === 1) {
         message = "你拒绝了定位权限，请在浏览器设置中允许定位。";
       } else if (error.code === 2) {
-        message = "暂时无法获取位置信息，请检查手机定位服务。";
+        message = "暂时无法获取位置信息，请检查设备定位服务。";
       } else if (error.code === 3) {
         message = "定位请求超时，下一轮会再次尝试。";
       }
@@ -247,8 +626,6 @@ function locateAndUpload() {
   );
 }
 
-// 页面关闭或离开时，浏览器会结束网页中的定时任务。
-// 这不是后台持续定位功能。
 window.addEventListener("pagehide", () => {
   if (timer !== null) {
     clearInterval(timer);
@@ -257,5 +634,6 @@ window.addEventListener("pagehide", () => {
   sharing = false;
 });
 </script>
+
 </body>
 </html>
