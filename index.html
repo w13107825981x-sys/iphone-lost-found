@@ -2,350 +2,260 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f4f7fc">
-  <title>云端资源中心</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      padding: 28px 16px;
-      min-height: 100vh;
-      font-family: -apple-system, BlinkMacSystemFont,
-        "Segoe UI", sans-serif;
-      color: #202b3c;
-      background:
-        radial-gradient(circle at 10% 5%, #dceaff 0, transparent 35%),
-        linear-gradient(145deg, #f4f7fc, #edf3fb);
-    }
-
-    .container {
-      max-width: 460px;
-      margin: 28px auto;
-    }
-
-    .top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 34px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 17px;
-      font-weight: 700;
-    }
-
-    .cloud-icon {
-      width: 40px;
-      height: 40px;
-      display: grid;
-      place-items: center;
-      background: #e0edff;
-      border-radius: 13px;
-      font-size: 23px;
-    }
-
-    .online {
-      color: #16865a;
-      background: #e3f7ed;
-      padding: 6px 11px;
-      border-radius: 20px;
-      font-size: 12px;
-    }
-
-    .heading {
-      margin-bottom: 24px;
-    }
-
-    .heading h1 {
-      font-size: 27px;
-      line-height: 1.4;
-      margin: 0 0 8px;
-      letter-spacing: -.5px;
-    }
-
-    .heading p {
-      margin: 0;
-      color: #7b8799;
-      font-size: 14px;
-      line-height: 1.7;
-    }
-
-    .card {
-      background: rgba(255,255,255,.95);
-      border: 1px solid #e9eef6;
-      border-radius: 22px;
-      padding: 22px;
-      box-shadow: 0 12px 35px rgba(39,75,125,.08);
-    }
-
-    .file-icon {
-      width: 62px;
-      height: 62px;
-      border-radius: 17px;
-      background: #e8f1ff;
-      display: grid;
-      place-items: center;
-      font-size: 32px;
-      margin-bottom: 18px;
-    }
-
-    .file-title {
-      font-size: 19px;
-      font-weight: 700;
-      margin-bottom: 7px;
-    }
-
-    .file-subtitle {
-      color: #8b96a7;
-      font-size: 13px;
-      margin-bottom: 20px;
-    }
-
-    .line {
-      height: 1px;
-      background: #edf0f5;
-      margin: 18px 0;
-    }
-
-    .description {
-      color: #626f82;
-      font-size: 14px;
-      line-height: 1.8;
-    }
-
-    .notice {
-      background: #f1f6ff;
-      color: #42628e;
-      border-radius: 12px;
-      padding: 13px;
-      font-size: 13px;
-      line-height: 1.7;
-      margin-top: 16px;
-    }
-
-    button {
-      width: 100%;
-      border: none;
-      border-radius: 13px;
-      padding: 16px;
-      margin-top: 20px;
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-      background: linear-gradient(110deg, #3988f5, #2869dc);
-      box-shadow: 0 7px 17px rgba(45,117,224,.22);
-      cursor: pointer;
-      transition: .2s;
-    }
-
-    button:active {
-      transform: scale(.98);
-    }
-
-    button:disabled {
-      opacity: .55;
-      cursor: not-allowed;
-    }
-
-    #result {
-      display: none;
-      margin-top: 18px;
-      padding: 15px;
-      border-radius: 12px;
-      background: #f4f7fb;
-      color: #46566d;
-      font-size: 13px;
-      line-height: 1.8;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-
-    .footer {
-      text-align: center;
-      color: #9aa5b5;
-      font-size: 12px;
-      line-height: 1.8;
-      margin-top: 22px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>手机失物找回 - 位置分享</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;padding:22px 14px;
+  background:#f3f6fb;color:#202938;
+  font-family:Arial,"Microsoft YaHei",sans-serif
+}
+.container{max-width:520px;margin:35px auto}
+.panel{
+  background:#fff;border-radius:16px;
+  padding:22px;margin-bottom:16px;
+  box-shadow:0 4px 18px #0000000a
+}
+h2{margin:0 0 12px;font-size:23px}
+p{line-height:1.8;color:#687386;font-size:14px}
+.notice{
+  background:#fff8e8;color:#76551b;
+  padding:13px;border-radius:10px;
+  font-size:13px;line-height:1.8
+}
+button{
+  width:100%;padding:15px;margin-top:12px;
+  border:0;border-radius:10px;
+  font-size:16px;font-weight:bold;cursor:pointer
+}
+#startButton{background:#1677ff;color:white}
+#stopButton{background:#fff0f0;color:#c0392b}
+button:disabled{opacity:.5;cursor:not-allowed}
+.status{
+  background:#f5f7fa;padding:14px;
+  border-radius:10px;line-height:1.8;
+  font-size:14px;overflow-wrap:anywhere
+}
+.small{font-size:12px;color:#8791a1;line-height:1.7}
+</style>
 </head>
-
 <body>
-  <div class="container">
+<div class="container">
 
-    <div class="top">
-      <div class="brand">
-        <div class="cloud-icon">☁️</div>
-        云端资源中心
-      </div>
-      <div class="online">● 在线服务</div>
+  <div class="panel">
+    <h2>手机失物找回</h2>
+    <p>如果你捡到了他人的手机，可以通过主动分享当前位置，帮助失主找回手机。</p>
+
+    <div class="notice">
+      <strong>位置分享说明</strong><br>
+      1. 只有你主动点击开始并允许浏览器定位后，网页才会获取位置。<br>
+      2. 开始后，网页每30秒尝试获取并上传一次位置。<br>
+      3. 你可以随时点击停止分享。<br>
+      4. 上传的位置会提供给失主用于找回手机。<br>
+      5. 网页切到后台、锁屏或关闭后，浏览器可能暂停定位，不能保证持续运行。
     </div>
 
-    <div class="heading">
-      <h1>欢迎访问云端资源中心</h1>
-      <p>资源信息与在线服务入口</p>
-    </div>
+    <button id="startButton" onclick="startSharing()">
+      同意并开始位置分享
+    </button>
 
-    <div class="card">
-
-      <div class="file-icon">📦</div>
-
-      <div class="file-title">云服务影视资源</div>
-
-      <div class="file-subtitle">
-        在线服务 · 分享功能
-      </div>
-
-      <div class="line"></div>
-
-      <div class="description">
-        ^-^
-      </div>
-
-      <div class="notice">
-        <strong>分享说明</strong><br>
-        点击下方按钮后，浏览器会请求权限。
-        只有允许才会上传
-        影视资源大全。
-      </div>
-
-      <button id="shareButton" onclick="getLocation()">
-        查看资源
-      </button>
-
-      <div id="result" aria-live="polite"></div>
-
-    </div>
-
-    <div class="footer">
-      云端在线服务<br>
-      位置仅在主动授权后获取和上传
-    </div>
-
+    <button id="stopButton" onclick="stopSharing()" style="display:none">
+      停止位置分享
+    </button>
   </div>
 
-  <script>
-    const FUNCTION_URL =
-      "https://xsccvztarcmwekuhnwvo.supabase.co/functions/v1/rapid-action";
+  <div class="panel">
+    <h3>位置分享状态</h3>
+    <div id="status" class="status" aria-live="polite">
+      尚未开始分享位置。
+    </div>
+    <p class="small">
+      定位间隔：30秒。只有定位成功并上传成功的数据才会保存。
+      停止分享后，之前已经上传的记录不会自动删除。
+    </p>
+  </div>
 
-    const SUPABASE_KEY =
-      "sb_publishable_5Eo-7HNm1xWLyblogIYgfw_WtzhXHJs";
+</div>
 
-    async function getLocation() {
-      const result = document.getElementById("result");
-      const button = document.getElementById("shareButton");
+<script>
+const FUNCTION_URL =
+  "https://xsccvztarcmwekuhnwvo.supabase.co/functions/v1/rapid-action";
 
-      result.style.display = "block";
+const SUPABASE_KEY =
+  "sb_publishable_5Eo-7HNm1xWLyblogIYgfw_WtzhXHJs";
 
-      if (!window.isSecureContext) {
-        result.textContent =
-          "当前网页不是安全连接，请使用 HTTPS 地址打开。";
+const INTERVAL_MS = 30 * 1000;
+
+let sharing = false;
+let timer = null;
+let uploading = false;
+
+const statusBox = document.getElementById("status");
+const startButton = document.getElementById("startButton");
+const stopButton = document.getElementById("stopButton");
+
+function setStatus(message) {
+  statusBox.textContent = message;
+}
+
+function updateButtons() {
+  startButton.style.display = sharing ? "none" : "block";
+  stopButton.style.display = sharing ? "block" : "none";
+}
+
+function stopSharing() {
+  sharing = false;
+
+  if (timer !== null) {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  updateButtons();
+  setStatus("位置分享已停止。不会再主动发起新的定位上传。");
+}
+
+function startSharing() {
+  if (sharing) return;
+
+  if (!window.isSecureContext) {
+    setStatus("当前页面不是安全 HTTPS 环境，请使用 GitHub Pages 的 HTTPS 地址。");
+    return;
+  }
+
+  if (!navigator.geolocation) {
+    setStatus("当前浏览器不支持定位功能。");
+    return;
+  }
+
+  const confirmed = window.confirm(
+    "是否同意向失主分享你当前的位置？\n\n" +
+    "开始后网页每30秒尝试定位并上传一次。\n" +
+    "你可以随时停止分享。"
+  );
+
+  if (!confirmed) {
+    setStatus("你没有同意位置分享，定位尚未开始。");
+    return;
+  }
+
+  sharing = true;
+  updateButtons();
+
+  setStatus("正在请求浏览器定位权限……");
+
+  // 立即执行第一次定位
+  locateAndUpload();
+
+  // 每30秒尝试一次
+  timer = setInterval(() => {
+    if (sharing) locateAndUpload();
+  }, INTERVAL_MS);
+}
+
+function locateAndUpload() {
+  if (!sharing || uploading) return;
+
+  uploading = true;
+  setStatus("正在获取当前位置……");
+
+  navigator.geolocation.getCurrentPosition(
+    async position => {
+      if (!sharing) {
+        uploading = false;
         return;
       }
 
-      if (!navigator.geolocation) {
-        result.textContent =
-          "当前浏览器不支持定位功能。";
-        return;
-      }
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      const accuracy = position.coords.accuracy;
 
-      button.disabled = true;
-      result.textContent =
-        "正在请求定位，请在浏览器弹窗中选择是否允许……";
-
-      navigator.geolocation.getCurrentPosition(
-        async function(position) {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          const accuracy = position.coords.accuracy;
-
-          result.textContent =
-            "定位获取成功！\n" +
-            "正在上传位置，请稍候……";
-
-          try {
-            const response = await fetch(FUNCTION_URL, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "apikey": SUPABASE_KEY
-              },
-              body: JSON.stringify({
-                action: "report",
-                latitude: lat,
-                longitude: lng,
-                accuracy: accuracy,
-                consent: true
-              })
-            });
-
-            const rawText = await response.text();
-            let data;
-
-            try {
-              data = JSON.parse(rawText);
-            } catch {
-              throw new Error(
-                "服务器返回异常：" + rawText.slice(0, 300)
-              );
-            }
-
-            if (!response.ok || !data.success) {
-              throw new Error(
-                "HTTP状态：" + response.status +
-                "\n错误：" + (data.error || "未知错误") +
-                "\n详情：" + (data.details || "无") +
-                "\n错误代码：" + (data.code || "无")
-              );
-            }
-
-            result.textContent =
-              "✓ 成功！\n\n" +
-              "感谢你愿意帮助失主。\n" +
-              "定位精度：" + Math.round(accuracy) + " 米\n" +
-              "分享时间：" +
-              new Date().toLocaleString("zh-CN");
-
-          } catch (error) {
-            result.textContent =
-              "位置获取成功，但上传失败。\n\n" +
-              "错误信息：\n" + error.message;
-          } finally {
-            button.disabled = false;
-          }
-        },
-
-        function(error) {
-          const messages = {
-            1: "你拒绝了定位权限。如愿意分享，请在浏览器设置中允许定位。",
-            2: "设备暂时无法确定位置，请稍后重试。",
-            3: "定位超时，请检查网络或重新尝试。"
-          };
-
-          result.textContent =
-            "定位未成功。\n" +
-            (messages[error.code] || error.message);
-
-          button.disabled = false;
-        },
-
-        {
-          enableHighAccuracy: true,
-          timeout: 30000,
-          maximumAge: 0
-        }
+      setStatus(
+        "已获取位置，正在上传……\n" +
+        "纬度：" + latitude + "\n" +
+        "经度：" + longitude + "\n" +
+        "精度：" + Math.round(accuracy) + " 米"
       );
+
+      try {
+        const response = await fetch(FUNCTION_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_KEY
+          },
+          body: JSON.stringify({
+            action: "report",
+            latitude,
+            longitude,
+            accuracy,
+            consent: true
+          })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || result.error) {
+          throw new Error(result.error || "上传失败");
+        }
+
+        if (sharing) {
+          setStatus(
+            "位置上传成功。\n" +
+            "上传时间：" + new Date().toLocaleString("zh-CN") + "\n" +
+            "纬度：" + latitude + "\n" +
+            "经度：" + longitude + "\n" +
+            "定位精度：" + Math.round(accuracy) + " 米\n\n" +
+            "下一次定位将在约30秒后尝试。"
+          );
+        }
+
+      } catch (error) {
+        if (sharing) {
+          setStatus("位置获取成功，但上传失败： " + error.message);
+        }
+      } finally {
+        uploading = false;
+      }
+    },
+
+    error => {
+      uploading = false;
+
+      if (!sharing) return;
+
+      let message = "定位失败";
+
+      if (error.code === 1) {
+        message = "你拒绝了定位权限，请在浏览器设置中允许定位。";
+      } else if (error.code === 2) {
+        message = "暂时无法获取位置信息，请检查手机定位服务。";
+      } else if (error.code === 3) {
+        message = "定位请求超时，下一轮会再次尝试。";
+      }
+
+      setStatus(message);
+    },
+
+    {
+      enableHighAccuracy: true,
+      timeout: 20000,
+      maximumAge: 0
     }
-  </script>
+  );
+}
+
+// 页面关闭或离开时，浏览器会结束网页中的定时任务。
+// 这不是后台持续定位功能。
+window.addEventListener("pagehide", () => {
+  if (timer !== null) {
+    clearInterval(timer);
+    timer = null;
+  }
+  sharing = false;
+});
+</script>
 </body>
 </html>
